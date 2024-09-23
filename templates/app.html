@@ -3,44 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
 
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <!-- jQuery Validation -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 
-    <title>APP</title>
 </head>
 <body>
-    <div class="container">
-      <table class="table table-sm table-bordered">
-        <thead>
-          <tr>
-            <th>Temperatura</th>
-            <th>Humedad</th>
-            <th>Fecha y Hora</th>
-          </tr>
-        </thead>
-      </table>
+    <div class="container mt-5">
+        <h2>Registro de Usuario</h2>
+
+        <!-- Formulario de registro -->
+        <form id="formRegistro" novalidate>
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre de Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+
+        <!-- Tabla con detalles de validaciones -->
+        <h4 class="mt-5">Validaciones del CDU</h4>
+        <ul>
+            <li>Nombre de Usuario: requerido, solo letras y números, sin espacios, entre 5 y 20 caracteres.</li>
+            <li>Contraseña: requerida, entre 8 y 20 caracteres.</li>
+            <li>Confirmación de contraseña: debe coincidir con la contraseña ingresada.</li>
+        </ul>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+    <!-- Validación con jQuery Validation -->
     <script>
-        window.addEventListener("load", function (event) {
-            // Enable pusher logging - don't include this in production
-            Pusher.logToConsole = true
-            
-            var pusher = new Pusher("cda1cc599395d699a2af", {
-                cluster: "us2"
-            })
-            
-            var channel = pusher.subscribe("my-channel");
-            channel.bind("my-event", function(data) {
-                alert("Ocurrió el evento")
-            })
-        })
-    </script>    
+        $(document).ready(function() {
+            // Reglas de validación
+            $("#formRegistro").validate({
+                rules: {
+                    username: {
+                        required: true,
+                        minlength: 5,
+                        maxlength: 20,
+                        alphanumeric: true // Letras y números
+                    },
+                    password: {
+                        required: true,
+                        minlength: 8,
+                        maxlength: 20
+                    },
+                    confirmPassword: {
+                        required: true,
+                        equalTo: "#password"
+                    }
+                },
+                messages: {
+                    username: {
+                        required: "El nombre de usuario es obligatorio.",
+                        minlength: "El nombre de usuario debe tener al menos 5 caracteres.",
+                        maxlength: "El nombre de usuario no puede exceder los 20 caracteres.",
+                        alphanumeric: "El nombre de usuario solo puede contener letras y números."
+                    },
+                    password: {
+                        required: "La contraseña es obligatoria.",
+                        minlength: "La contraseña debe tener al menos 8 caracteres.",
+                        maxlength: "La contraseña no puede exceder los 20 caracteres."
+                    },
+                    confirmPassword: {
+                        required: "Confirma tu contraseña.",
+                        equalTo: "Las contraseñas no coinciden."
+                    }
+                }
+            });
+        });
+
+        // Añadir método alphanumeric (solo letras y números)
+        $.validator.addMethod("alphanumeric", function(value, element) {
+            return this.optional(element) || /^[a-z0-9]+$/i.test(value);
+        }, "Solo se permiten letras y números.");
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
