@@ -1,24 +1,21 @@
 from flask import Flask, render_template, request, redirect, flash, url_for
+import pusher
 
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta'
 
-# Lista en memoria para almacenar los usuarios registrados
 usuarios_registrados = []
 
-# Página principal con el formulario de registro y tabla de usuarios
 @app.route("/")
 def index():
     return render_template("app.html", usuarios=usuarios_registrados)
 
-# Ruta para manejar el envío del formulario de registro
 @app.route("/registro", methods=["POST"])
 def registro():
     username = request.form.get("username")
     password = request.form.get("password")
     confirm_password = request.form.get("confirmPassword")
 
-    # Validación básica del formulario
     if len(username) < 5 or len(username) > 20 or not username.isalnum():
         flash("El nombre de usuario debe tener entre 5 y 20 caracteres y contener solo letras y números.")
         return redirect(url_for('index'))
@@ -31,6 +28,16 @@ def registro():
         flash("Las contraseñas no coinciden.")
         return redirect(url_for('index'))
 
+    pusher_client = pusher.Pusher(
+        app_id='1766038',
+        key='87d2c26ba36c6da2dc5f',
+        secret='64785a24700ebcea228c',
+        cluster='us2',
+        ssl=True
+    )
+    
+    pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
+    
     # Si todo está correcto, agregar usuario a la lista
     usuarios_registrados.append({'username': username, 'password': password})
     flash(f"Usuario {username} registrado con éxito.")
