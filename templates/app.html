@@ -44,6 +44,31 @@
             </div>
             <button type="submit" class="btn btn-primary">Registrar</button>
         </form>
+
+        <!-- Tabla de usuarios registrados -->
+        <h3 class="mt-5">Usuarios Registrados</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Contraseña</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ usuario.username }}</td>
+                    <td>{{ usuario.password }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">No hay usuarios registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- Validación con jQuery Validation -->
