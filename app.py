@@ -1,47 +1,40 @@
-from flask import Flask, render_template, request, redirect, flash, url_for
-import pusher
+from flask import Flask, render_template, request
+import mysql.connector
+import bcrypt
 
 app = Flask(__name__)
-app.secret_key = 'tu_llave_secreta'
 
-usuarios_registrados = []
+# Configuración de la base de datos (ajusta los valores)
+mydb = mysql.connector.connect(
+  host="tu_host",
+  user="tu_usuario",
+  password="tu_contraseña",
+  database="tu_base_de_datos"
+)
 
-@app.route("/")
+@app.route('/')
 def index():
-    return render_template("app.html", usuarios=usuarios_registrados)
+    return render_template('app.html')
 
-@app.route("/registro", methods=["POST"])
-def registro():
-    username = request.form.get("username")
-    password = request.form.get("password")
-    confirm_password = request.form.get("confirmPassword")
+@app.route('/registrar', methods=['POST'])
+def registrar():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
 
-    if len(username) < 5 or len(username) > 20 or not username.isalnum():
-        flash("El nombre de usuario debe tener entre 5 y 20 caracteres y contener solo letras y números.")
-        return redirect(url_for('index'))
+    # Encriptar la contraseña
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    if len(password) < 8 or len(password) > 20:
-        flash("La contraseña debe tener entre 8 y 20 caracteres.")
-        return redirect(url_for('index'))
-
-    if password != confirm_password:
-        flash("Las contraseñas no coinciden.")
-        return redirect(url_for('index'))
-
-    pusher_client = pusher.Pusher(
-        app_id='1766038',
-        key='87d2c26ba36c6da2dc5f',
-        secret='64785a24700ebcea228c',
-        cluster='us2',
-        ssl=True
-    )
-    
-    pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
-    
-    # Si todo está correcto, agregar usuario a la lista
-    usuarios_registrados.append({'username': username, 'password': password})
-    flash(f"Usuario {username} registrado con éxito.")
-    return redirect(url_for('index'))
+    # Insertar los datos en la base de datos
+    mycursor = mydb.cursor()
+    sql = "INSERT INTO tst0_usuarios (username, email, password) VALUES (%s, %s, %s)"
+    val = (username, email, hashed_password)
+    try:
+        mycursor.execute(sql, val)
+        mydb.commit()
+        return "Usuario registrado exitosamente"
+    except mysql.connector.Error as error:
+        return f"Error al registrar el usuario: {error}"
 
 if __name__ == "__main__":
     app.run(debug=True)
