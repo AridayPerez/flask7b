@@ -1,9 +1,6 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
-
 import mysql.connector
 from mysql.connector import Error
-import datetime
-import pytz
 
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta'  # Cambia esto por una clave secreta segura
