@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
-import bcrypt
+
 import mysql.connector
 from mysql.connector import Error
 import datetime
