@@ -3,7 +3,7 @@ import mysql.connector
 from mysql.connector import Error
 
 app = Flask(__name__)
-app.secret_key = 'tu_llave_secreta'  # Cambia esto por una clave secreta segura
+app.secret_key = '64785a24700ebcea228c'  # Cambia esto por una clave secreta segura
 
 def get_db_connection():
     """
@@ -13,7 +13,7 @@ def get_db_connection():
         connection = mysql.connector.connect(
             host="185.232.14.52",
             database="u760464709_tst_sep",
-            user="u760464709_tst0_usuarios",
+            user="u760464709_tst_sep_usr",
             password="dJ0CIAFF="
         )
         if connection.is_connected():
