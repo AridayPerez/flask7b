@@ -74,15 +74,12 @@ def registrar():
         flash("Las contraseñas no coinciden.", "danger")
         return redirect(url_for('index'))
 
-    # Encriptar la contraseña
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
     # Insertar los datos en la base de datos
     connection = get_db_connection()
     if connection:
         cursor = connection.cursor()
         sql = "INSERT INTO tst0_usuarios (Nombre_Usuario, Contrasena) VALUES (%s, %s)"
-        val = (username, hashed_password.decode('utf-8'))
+        val = (username, password)
         try:
             cursor.execute(sql, val)
             connection.commit()
