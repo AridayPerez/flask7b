@@ -1,9 +1,19 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
 import mysql.connector
 from mysql.connector import Error
+import pusher
 
 app = Flask(__name__)
-app.secret_key = '64785a24700ebcea228c'  # Cambia esto por una clave secreta segura
+app.secret_key = '64785a24700ebcea228c' 
+
+# Configurar Pusher
+pusher_client = pusher.Pusher(
+  app_id='1766038',
+  key='87d2c26ba36c6da2dc5f',
+  secret='64785a24700ebcea228c',
+  cluster='us2',
+  ssl=True
+)
 
 def get_db_connection():
     """
@@ -80,6 +90,10 @@ def registrar():
         try:
             cursor.execute(sql, val)
             connection.commit()
+            
+            # Emite un evento de Pusher después de registrar el usuario
+            pusher_client.trigger('my-channel', 'nuevo-usuario', {'username': username})
+            
             flash(f"Usuario '{username}' registrado exitosamente.", "success")
         except Error as e:
             flash(f"Error al registrar el usuario: {e}", "danger")
