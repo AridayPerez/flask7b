@@ -60,16 +60,27 @@
 
             buscarUsuarios();
 
+            // Guardar Usuario (Crear o Editar)
             $("#frmUsuario").submit(function(event) {
-                event.preventDefault();
-                $.post("/usuarios/guardar", $(this).serialize(), function(response) {
-                    if (response.status === "success") {
-                        $("#frmUsuario")[0].reset();
-                        buscarUsuarios();
+                event.preventDefault(); // Evitar el envío normal del formulario
+
+                $.ajax({
+                    type: "POST",
+                    url: "/usuarios/guardar",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.status === "success") {
+                            $("#frmUsuario")[0].reset(); // Limpiar el formulario
+                            buscarUsuarios(); // Actualizar la tabla
+                        }
+                    },
+                    error: function() {
+                        alert("Ocurrió un error al guardar el usuario.");
                     }
                 });
             });
 
+            // Editar Usuario
             $(document).on("click", ".btn-editar", function() {
                 var id = $(this).data("id");
                 $.get("/usuarios/editar", { Id_Usuario: id }, function(usuario) {
@@ -79,6 +90,7 @@
                 });
             });
 
+            // Eliminar Usuario
             $(document).on("click", ".btn-eliminar", function() {
                 if (confirm("¿Está seguro de eliminar este usuario?")) {
                     var id = $(this).data("id");
@@ -90,9 +102,10 @@
                 }
             });
 
+            // Cancelar edición
             $("#cancelar").click(function() {
-                $("#frmUsuario")[0].reset();
-                $("#Id_Usuario").val('');
+                $("#frmUsuario")[0].reset(); // Restablecer el formulario
+                $("#Id_Usuario").val(''); // Limpiar el campo oculto del ID
             });
         });
     </script>
