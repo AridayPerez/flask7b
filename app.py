@@ -37,6 +37,7 @@ def guardar_usuario():
     cursor = con.cursor()
 
     if id_usuario:
+        # Actualización de usuario existente
         sql = """
             UPDATE tst0_usuarios SET
             NombreUsuario = %s,
@@ -45,6 +46,7 @@ def guardar_usuario():
         """
         val = (nombre_usuario, contrasena, id_usuario)
     else:
+        # Inserción de nuevo usuario
         sql = """
             INSERT INTO tst0_usuarios (NombreUsuario, Contrasena)
             VALUES (%s, %s)
@@ -52,7 +54,7 @@ def guardar_usuario():
         val = (nombre_usuario, contrasena)
 
     cursor.execute(sql, val)
-    con.commit()
+    con.commit()  # Asegurarse de que los cambios se guarden
     con.close()
 
     return make_response(jsonify({"status": "success"}))
