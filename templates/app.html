@@ -2,122 +2,99 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>CRUD de Usuarios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Registro de Usuario</h2>
+    <div class="container mt-4">
+        <h1>Gestión de Usuarios</h1>
+        <form id="frmUsuario" method="post">
+            <input type="hidden" id="Id_Usuario" name="Id_Usuario">
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <div class="alert alert-warning" role="alert">
-              {{ messages[0][1] }}
-            </div>
-          {% endif %}
-        {% endwith %}
-
-        <form id="formRegistro" method="POST" action="{{ url_for('registrar') }}" novalidate>
             <div class="mb-3">
-                <label for="username" class="form-label">Nombre de Usuario</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+                <label for="NombreUsuario" class="form-label">Nombre de Usuario</label>
+                <input type="text" id="NombreUsuario" name="NombreUsuario" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <label for="Contrasena" class="form-label">Contraseña</label>
+                <input type="password" id="Contrasena" name="Contrasena" class="form-control" required>
             </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button id="guardar" name="guardar" class="btn btn-primary">Guardar</button>
+            <button type="reset" id="cancelar" name="cancelar" class="btn btn-secondary">Cancelar</button>
         </form>
-
-        <h3 class="mt-5">Usuarios Registrados</h3>
-        <table class="table table-striped">
+        <hr>
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>ID Usuario</th>
                     <th>Nombre de Usuario</th>
+                    <th>Contraseña</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ usuario.Nombre_Usuario }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="2" class="text-center">No hay usuarios registrados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+            <tbody id="tbodyUsuarios"></tbody>
         </table>
     </div>
 
     <script>
         $(document).ready(function() {
-            $("#formRegistro").validate({
-                rules: {
-                    username: {
-                        required: true,
-                        minlength: 5,
-                        maxlength: 20,
-                        alphanumeric: true
-                    },
-                    password: {
-                        required: true,
-                        minlength: 8,
-                        maxlength: 20
-                    },
-                    confirmPassword: {
-                        required: true,
-                        equalTo: "#password"
+            function buscarUsuarios() {
+                $.get("/usuarios/buscar", function(data) {
+                    $("#tbodyUsuarios").empty();
+                    data.forEach(function(usuario) {
+                        $("#tbodyUsuarios").append(`
+                            <tr>
+                                <td>${usuario.Id_Usuario}</td>
+                                <td>${usuario.NombreUsuario}</td>
+                                <td>${usuario.Contrasena}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning btn-editar" data-id="${usuario.Id_Usuario}">Editar</button>
+                                    <button class="btn btn-sm btn-danger btn-eliminar" data-id="${usuario.Id_Usuario}">Eliminar</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            }
+
+            buscarUsuarios();
+
+            $("#frmUsuario").submit(function(event) {
+                event.preventDefault();
+                $.post("/usuarios/guardar", $(this).serialize(), function(response) {
+                    if (response.status === "success") {
+                        $("#frmUsuario")[0].reset();
+                        buscarUsuarios();
                     }
-                },
-                messages: {
-                    username: {
-                        required: "El nombre de usuario es obligatorio.",
-                        minlength: "El nombre de usuario debe tener al menos 5 caracteres.",
-                        maxlength: "El nombre de usuario no puede exceder los 20 caracteres.",
-                        alphanumeric: "El nombre de usuario solo puede contener letras y números."
-                    },
-                    password: {
-                        required: "La contraseña es obligatoria.",
-                        minlength: "La contraseña debe tener al menos 8 caracteres.",
-                        maxlength: "La contraseña no puede exceder los 20 caracteres."
-                    },
-                    confirmPassword: {
-                        required: "Confirma tu contraseña.",
-                        equalTo: "Las contraseñas no coinciden."
-                    }
+                });
+            });
+
+            $(document).on("click", ".btn-editar", function() {
+                var id = $(this).data("id");
+                $.get("/usuarios/editar", { Id_Usuario: id }, function(usuario) {
+                    $("#Id_Usuario").val(usuario.Id_Usuario);
+                    $("#NombreUsuario").val(usuario.NombreUsuario);
+                    $("#Contrasena").val(usuario.Contrasena);
+                });
+            });
+
+            $(document).on("click", ".btn-eliminar", function() {
+                if (confirm("¿Está seguro de eliminar este usuario?")) {
+                    var id = $(this).data("id");
+                    $.post("/usuarios/eliminar", { Id_Usuario: id }, function(response) {
+                        if (response.status === "success") {
+                            buscarUsuarios();
+                        }
+                    });
                 }
             });
 
-            $.validator.addMethod("alphanumeric", function(value, element) {
-                return this.optional(element) || /^[a-z0-9]+$/i.test(value);
-            }, "Solo se permiten letras y números.");
+            $("#cancelar").click(function() {
+                $("#frmUsuario")[0].reset();
+                $("#Id_Usuario").val('');
+            });
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-    Pusher.logToConsole = true;
-
-    var pusher = new Pusher('87d2c26ba36c6da2dc5f', {
-      cluster: 'us2'
-    });
-
-    var channel = pusher.subscribe('my-channel');
-    channel.bind('my-event', function(data) {
-      window.location=location.href
-    });
-  </script>
 </body>
 </html>
