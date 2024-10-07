@@ -1,128 +1,96 @@
-from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 import mysql.connector
-from mysql.connector import Error
-import pusher
 
 app = Flask(__name__)
-app.secret_key = '64785a24700ebcea228c' 
 
-# Configurar Pusher
-pusher_client = pusher.Pusher(
-  app_id='1766038',
-  key='87d2c26ba36c6da2dc5f',
-  secret='64785a24700ebcea228c',
-  cluster='us2',
-  ssl=True
-)
-
-def get_db_connection():
-    """
-    Función para establecer una conexión con la base de datos.
-    """
-    try:
-        connection = mysql.connector.connect(
-            host="185.232.14.52",
-            database="u760464709_tst_sep",
-            user="u760464709_tst_sep_usr",
-            password="dJ0CIAFF="
-        )
-        if connection.is_connected():
-            return connection
-    except Error as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        return None
+def get_connection():
+    return mysql.connector.connect(
+        host="185.232.14.52",
+        database="u760464709_tst_sep",
+        user="u760464709_tst_sep_usr",
+        password="dJ0CIAFF="
+    )
 
 @app.route("/")
 def index():
-    """
-    Ruta principal que muestra el formulario de registro y la tabla de usuarios.
-    """
-    connection = get_db_connection()
-    usuarios = []
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        try:
-            cursor.execute("SELECT Id_Usuario, Nombre_Usuario FROM tst0_usuarios ORDER BY Id_Usuario DESC")
-            usuarios = cursor.fetchall()
-        except Error as e:
-            print(f"Error al obtener usuarios: {e}")
-        finally:
-            cursor.close()
-            connection.close()
-    return render_template("app.html", usuarios=usuarios)
+    return render_template("app.html")
 
-@app.route("/registrar", methods=["POST"])
-def registrar():
-    """
-    Ruta para manejar el registro de nuevos usuarios.
-    """
-    username = request.form.get("username")
-    password = request.form.get("password")
-    confirm_password = request.form.get("confirmPassword")
+@app.route("/usuarios/buscar")
+def buscar_usuarios():
+    con = get_connection()
+    cursor = con.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT Id_Usuario, NombreUsuario, Contrasena FROM tst0_usuarios
+        ORDER BY Id_Usuario DESC
+    """)
+    registros = cursor.fetchall()
+    con.close()
+    return make_response(jsonify(registros))
 
-    # Validaciones del lado del servidor
-    if not username or not password or not confirm_password:
-        flash("Todos los campos son obligatorios.", "danger")
-        return redirect(url_for('index'))
+@app.route("/usuarios/guardar", methods=["POST"])
+def guardar_usuario():
+    con = get_connection()
+    id_usuario = request.form.get("Id_Usuario")
+    nombre_usuario = request.form["NombreUsuario"]
+    contrasena = request.form["Contrasena"]
 
-    if len(username) < 5 or len(username) > 20:
-        flash("El nombre de usuario debe tener entre 5 y 20 caracteres.", "danger")
-        return redirect(url_for('index'))
+    cursor = con.cursor()
 
-    if not username.isalnum():
-        flash("El nombre de usuario solo puede contener letras y números.", "danger")
-        return redirect(url_for('index'))
-
-    if len(password) < 8 or len(password) > 20:
-        flash("La contraseña debe tener entre 8 y 20 caracteres.", "danger")
-        return redirect(url_for('index'))
-
-    if password != confirm_password:
-        flash("Las contraseñas no coinciden.", "danger")
-        return redirect(url_for('index'))
-
-    # Insertar los datos en la base de datos
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        sql = "INSERT INTO tst0_usuarios (Nombre_Usuario, Contrasena) VALUES (%s, %s)"
-        val = (username, password)
-        try:
-            cursor.execute(sql, val)
-            connection.commit()
-            
-            # Emite un evento de Pusher después de registrar el usuario
-            pusher_client.trigger('my-channel', 'nuevo-usuario', {'username': username})
-            
-            flash(f"Usuario '{username}' registrado exitosamente.", "success")
-        except Error as e:
-            flash(f"Error al registrar el usuario: {e}", "danger")
-        finally:
-            cursor.close()
-            connection.close()
+    if id_usuario:
+        sql = """
+            UPDATE tst0_usuarios SET
+            NombreUsuario = %s,
+            Contrasena = %s
+            WHERE Id_Usuario = %s
+        """
+        val = (nombre_usuario, contrasena, id_usuario)
     else:
-        flash("No se pudo conectar a la base de datos.", "danger")
+        sql = """
+            INSERT INTO tst0_usuarios (NombreUsuario, Contrasena)
+            VALUES (%s, %s)
+        """
+        val = (nombre_usuario, contrasena)
 
-    return redirect(url_for('index'))
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
 
-@app.route("/buscar")
-def buscar():
+    return make_response(jsonify({"status": "success"}))
+
+@app.route("/usuarios/editar", methods=["GET"])
+def editar_usuario():
+    con = get_connection()
+    id_usuario = request.args["Id_Usuario"]
+    cursor = con.cursor(dictionary=True)
+    sql = """
+        SELECT Id_Usuario, NombreUsuario, Contrasena FROM tst0_usuarios
+        WHERE Id_Usuario = %s
     """
-    Ruta para obtener los usuarios registrados en formato JSON.
+    val = (id_usuario,)
+
+    cursor.execute(sql, val)
+    registro = cursor.fetchone()
+    con.close()
+
+    return make_response(jsonify(registro))
+
+@app.route("/usuarios/eliminar", methods=["POST"])
+def eliminar_usuario():
+    con = get_connection()
+    id_usuario = request.form["Id_Usuario"]
+
+    cursor = con.cursor()
+    sql = """
+        DELETE FROM tst0_usuarios
+        WHERE Id_Usuario = %s
     """
-    connection = get_db_connection()
-    usuarios = []
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        try:
-            cursor.execute("SELECT Id_Usuario, Nombre_Usuario FROM tst0_usuarios ORDER BY Id_Usuario DESC")
-            usuarios = cursor.fetchall()
-        except Error as e:
-            print(f"Error al obtener usuarios: {e}")
-        finally:
-            cursor.close()
-            connection.close()
-    return jsonify(usuarios)
+    val = (id_usuario,)
+
+    cursor.execute(sql, val)
+    con.commit()
+    con.close()
+
+    return make_response(jsonify({"status": "success"}))
 
 if __name__ == "__main__":
     app.run(debug=True)
