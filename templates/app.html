@@ -18,12 +18,12 @@
           <input type="hidden" id="id" name="id">
 
           <div class="mb-1">
-              <label for="id_usuario">Id</label>
-              <input type="text" id="id_usuario" name="id_usuario" class="form-control">
+              <label for="Nombre_Usuario">Nombre</label>
+              <input type="text" id="Nombre_Usuario" name="Nombre_Usuario" class="form-control">
           </div>
-          <div class="mb-1">
-              <label for="nombre_usuario">Nombre</label>
-              <input type="Text" id="nombre_usuario" name="nombre_usuario" class="form-control">
+           <div class="mb-1">
+              <label for="Contrasena">Contrasena</label>
+              <input type="text" id="Contrasena" name="Contrasena" class="form-control">
           </div>
           <div class="mb-1">
               <button id="guardar" name="guardar" class="btn btn-dark">Guardar</button>
@@ -33,7 +33,6 @@
       <table class="table table-sm">
         <thead>
           <tr>
-            <th>Id</th>
             <th>Nombre</th>
             <th>Contrasena</th>
             <th></th>
@@ -118,12 +117,17 @@
                 $.get("/buscar", function (respuesta) {
                     $("#tbodyUsuarios").html("")
 
+                    var fechaAnterior = ""
+
+                    for (var x in respuesta) {
+                        var usuarioss = respuesta[x]
+
                         $("#tbodyUsuarios").append(`<tr>
-                            <td>${id_usuario["Nombre_Usuario"]}</td>
-                            <td>${id_usuario["Contrasena"]}</td>
+                            <td>${usuarioss["Nombre_Usuario"]}</td>
+                            <td>${usuarioss["Contrasena"]}</td>
                             <td>
-                                <button class="btn btn-primary btn-editar" data-id="${id_usuario["id_Usuario"]}">Editar</button>
-                                <button class="btn btn-danger btn-eliminar" data-id="${id_usuario["id_Usuario"]}">Eliminar</button>
+                                <button class="btn btn-primary btn-editar" data-id="${usuarioss["Id_Usuario"]}">Editar</button>
+                                <button class="btn btn-danger btn-eliminar" data-id="${usuarioss["Id_Usuario"]}">Eliminar</button>
                             </td>
                         </tr>`)
                     }
@@ -137,19 +141,19 @@
 
                 $.get("/editar", {id: id}, function (respuesta) {
                     console.log(respuesta)
-                    var id_usuario = respuesta[0]
+                    var usuarioss = respuesta[0]
 
                     $("#id")
-                    .val(id_usuario["id_Usuario"])
+                    .val(usuarioss["id"])
                     .trigger("focus")
 
-                    $("#id_usuario").val(id_usuario["Nombre_Usuario"])
-                    $("#nombre_usuario").val(id_usuario["Contrasena"])
+                    $("#Nombre_Usuario").val(usuarioss["Nombre_Usuario"])
+                    $("#Contrasena").val(usuarioss["Contrasena"])
                 })
             })
-            
+           
             $(document).on("click", ".btn-eliminar", function (event) {
-                if (!confirm("¿Quieres eliminar este registro?")) {
+                if (!confirm("¿Seguro que deseas eliminar este registro?")) {
                     return
                 }
 
@@ -171,27 +175,27 @@
             })
 
             Pusher.logToConsole = true
-            
-            var pusher = new Pusher("2df86616075904231311", {
-                cluster: "us2"
-            })
+           
+           var pusher = new Pusher('fc838f52101ac3c0e022', {
+            cluster: 'us2'
+            });
 
             // Canal ---> Donde se concentran los hilos con los clientes conectados
-            var channel = pusher.subscribe("canalRegistros");
+            var channel = pusher.subscribe("canalRegistrosusuarioss");
 
             // Evento --> El código que se accionará con la información enviada o el uso del canal
-            channel.bind("registroTemperaturaHumedad", function (id_usuario) {
+            channel.bind("registrousuarioss", function (usuarioss) {
                 // 1. Notificar el evento
-                // alert("Ocurrió el evento")
+                // alert("Evento exitoso")
 
                 // 2. Recibir información enviada en el evento
-                // console.log(id_usuario)
+                // console.log(usuarioss)
 
                 // 3. Trabajar información enviada por el evento
                 /**
                 $("#tbodyUsuarios").prepend(`<tr>
-                    <td>${id_usuario.id_usuario}</td>
-                    <td>${id_usuario.nombre_usuario}</td>
+                    <td>${usuarioss.temperatura}</td>
+                    <td>${usuarioss.humedad}</td>
                     <td></td>
                 </tr>`)
                 */
