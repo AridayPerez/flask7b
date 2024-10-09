@@ -18,12 +18,12 @@
           <input type="hidden" id="id" name="id">
 
           <div class="mb-1">
-              <label for="Nombre_Usuario">Nombre</label>
-              <input type="text" id="Nombre_Usuario" name="Nombre_Usuario" class="form-control">
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" name="nombre" class="form-control">
           </div>
            <div class="mb-1">
-              <label for="Contrasena">Contrasena</label>
-              <input type="text" id="Contrasena" name="Contrasena" class="form-control">
+              <label for="contrasena">Contrasena</label>
+              <input type="text" id="contrasena" name="contrasena" class="form-control">
           </div>
           <div class="mb-1">
               <button id="guardar" name="guardar" class="btn btn-dark">Guardar</button>
@@ -147,8 +147,8 @@
                     .val(usuarioss["id"])
                     .trigger("focus")
 
-                    $("#Nombre_Usuario").val(usuarioss["Nombre_Usuario"])
-                    $("#Contrasena").val(usuarioss["Contrasena"])
+                    $("#nombre").val(usuarioss["Nombre_Usuario"])
+                    $("#contrasena").val(usuarioss["contrasena"])
                 })
             })
            
@@ -194,8 +194,8 @@
                 // 3. Trabajar información enviada por el evento
                 /**
                 $("#tbodyUsuarios").prepend(`<tr>
-                    <td>${usuarioss.temperatura}</td>
-                    <td>${usuarioss.humedad}</td>
+                    <td>${usuarioss.nombre}</td>
+                    <td>${usuarioss.contrasena}</td>
                     <td></td>
                 </tr>`)
                 */
