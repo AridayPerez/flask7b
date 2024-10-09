@@ -26,11 +26,11 @@ def index():
 
 def notificarActualizacion():
     pusher_client = pusher.Pusher(
-        app_id='1766037',
-        key='fc838f52101ac3c0e022',
-        secret='f9f1bc16656c8d474a72',
-        cluster='us2',
-        ssl=True
+    app_id='1766038',
+    key='87d2c26ba36c6da2dc5f',
+    secret='64785a24700ebcea228c',
+    cluster='us2',
+    ssl=True
     )
 
     args = {}  # Puedes definir los datos que deseas enviar
