@@ -57,8 +57,8 @@ def guardar():
     check_connection()
 
     id = request.form["id"]
-    Nombre_Usuario = request.form["Nombre_Usuario"]
-    Contrasena = request.form["Contrasena"]
+    nombre = request.form["nombre"]
+    contrasena = request.form["contrasena"]
     cursor = con.cursor()
 
     if id:  # Si se proporciona el ID, es una actualización
@@ -68,13 +68,13 @@ def guardar():
         Contrasena     = %s,
         WHERE Id_Usuario = %s
         """
-        val = (Nombre_Usuario, Contrasena, id)
+        val = (nombre, contrasena, id)
     else:  # Si no hay ID, es una inserción
         sql = """
         INSERT INTO tst0_usuarios (Nombre_Usuario, Contrasena)
         VALUES (%s, %s, %s)
         """
-        val = (Nombre_Usuario, Contrasena)
+        val = (nombre, contrasena)
 
     cursor.execute(sql, val)
     con.commit()
