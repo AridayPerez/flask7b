@@ -19,11 +19,11 @@
 
           <div class="mb-1">
               <label for="nombre">Nombre</label>
-              <input type="text" id="nombre" name="nombre" class="form-control">
+              <input type="text" id="nombre" name="nombre" class="form-control" required>
           </div>
            <div class="mb-1">
-              <label for="contrasena">Contrasena</label>
-              <input type="text" id="contrasena" name="contrasena" class="form-control">
+              <label for="contrasena">Contraseña</label>
+              <input type="password" id="contrasena" name="contrasena" class="form-control" required>
           </div>
           <div class="mb-1">
               <button id="guardar" name="guardar" class="btn btn-dark">Guardar</button>
@@ -34,7 +34,7 @@
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Contrasena</th>
+            <th>Contraseña</th>
             <th></th>
           </tr>
         </thead>
@@ -59,68 +59,57 @@
         </ul>
     </div>
     <script>
-        /*!
-        * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
-        * Copyright 2011-2022 The Bootstrap Authors
-        * Licensed under the Creative Commons Attribution 3.0 Unported License.
-        */
-
-        /** Reescrito */
-
-        var bootstrapTheme = localStorage.getItem("theme")
+        var bootstrapTheme = localStorage.getItem("theme");
 
         function getPreferredTheme() {
             if (bootstrapTheme) {
-                return bootstrapTheme
+                return bootstrapTheme;
             }
 
-            return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+            return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         }
 
         function setTheme(theme) {
             if (theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-                document.documentElement.setAttribute("data-bs-theme", "dark")
+                document.documentElement.setAttribute("data-bs-theme", "dark");
             }
             else {
-                document.documentElement.setAttribute("data-bs-theme", ((theme == "auto") ? "light" : theme))
+                document.documentElement.setAttribute("data-bs-theme", ((theme === "auto") ? "light" : theme));
             }
         }
 
         function showActiveTheme(theme) {
-            $("[data-bs-theme-value]").removeClass("bg-primary text-white active")
-            $(`[data-bs-theme-value="${theme}"]`).addClass("bg-primary text-white active")
+            $("[data-bs-theme-value]").removeClass("bg-primary text-white active");
+            $(`[data-bs-theme-value="${theme}"]`).addClass("bg-primary text-white active");
         }
 
-        $(document).on("click", '[data-bs-theme-value]', function (event) {
-            const theme = this.getAttribute("data-bs-theme-value")
-            localStorage.setItem("theme", theme)
-            setTheme(theme)
-            showActiveTheme(theme)
-        })
+        $(document).on("click", '[data-bs-theme-value]', function () {
+            const theme = this.getAttribute("data-bs-theme-value");
+            localStorage.setItem("theme", theme);
+            setTheme(theme);
+            showActiveTheme(theme);
+        });
 
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (event) {
-            if (bootstrapTheme !== "light"
-            || bootstrapTheme !== "dark") {
-                setTheme(getPreferredTheme())
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+            if (!["light", "dark"].includes(bootstrapTheme)) {
+                setTheme(getPreferredTheme());
             }
-        })
+        });
 
-        document.addEventListener("DOMContentLoaded", function (event) {
-            setTheme(bootstrapTheme)
-            showActiveTheme(getPreferredTheme())
-        })
+        document.addEventListener("DOMContentLoaded", function () {
+            setTheme(bootstrapTheme);
+            showActiveTheme(getPreferredTheme());
+        });
     </script>
 
     <script>
-        window.addEventListener("load", function (event) {
+        window.addEventListener("load", function () {
             function buscar() {
                 $.get("/buscar", function (respuesta) {
-                    $("#tbodyUsuarios").html("")
-
-                    var fechaAnterior = ""
+                    $("#tbodyUsuarios").html("");
 
                     for (var x in respuesta) {
-                        var usuarioss = respuesta[x]
+                        var usuarioss = respuesta[x];
 
                         $("#tbodyUsuarios").append(`<tr>
                             <td>${usuarioss["Nombre_Usuario"]}</td>
@@ -129,81 +118,60 @@
                                 <button class="btn btn-primary btn-editar" data-id="${usuarioss["Id_Usuario"]}">Editar</button>
                                 <button class="btn btn-danger btn-eliminar" data-id="${usuarioss["Id_Usuario"]}">Eliminar</button>
                             </td>
-                        </tr>`)
+                        </tr>`);
                     }
-                })
+                });
             }
 
-            buscar()
+            buscar();
 
-            $(document).on("click", ".btn-editar", function (event) {
-                var id = $(this).attr("data-id")
+            $(document).on("click", ".btn-editar", function () {
+                var id = $(this).attr("data-id");
 
-                $.get("/editar", {id: id}, function (respuesta) {
-                    console.log(respuesta)
-                    var usuarioss = respuesta[0]
+                $.get("/editar", { id: id }, function (respuesta) {
+                    var usuarioss = respuesta[0];
 
-                    $("#id")
-                    .val(usuarioss["id"])
-                    .trigger("focus")
-
-                    $("#nombre").val(usuarioss["Nombre_Usuario"])
-                    $("#contrasena").val(usuarioss["Contrasena"])
-                })
-            })
-           
-            $(document).on("click", ".btn-eliminar", function (event) {
-                if (!confirm("¿Seguro que deseas eliminar este registro?")) {
-                    return
-                }
-
-                var id = $(this).attr("data-id")
-
-                $.post("/eliminar", {id: id})
-            })
-
-            $("#frmUsuarios")
-            .submit(function (event)  {
-                event.preventDefault()
-
-                $.post("/guardar", $(this).serialize(), function (respuesta) {
-                    $("#frmUsuarios").get(0).reset()
-                })
-            })
-            .on("reset", function (event) {
-                $("#id").val("")
-            })
-
-            Pusher.logToConsole = true
-           
-           var pusher = new Pusher('87d2c26ba36c6da2dc5f', {
-            cluster: 'us2'
+                    $("#id").val(usuarioss["Id_Usuario"]).trigger("focus");
+                    $("#nombre").val(usuarioss["Nombre_Usuario"]);
+                    $("#contrasena").val(usuarioss["Contrasena"]);
+                });
             });
 
-            // Canal ---> Donde se concentran los hilos con los clientes conectados
+            $(document).on("click", ".btn-eliminar", function () {
+                if (!confirm("¿Seguro que deseas eliminar este registro?")) {
+                    return;
+                }
+
+                var id = $(this).attr("data-id");
+
+                $.post("/eliminar", { id: id }, function () {
+                    buscar(); // Actualiza la tabla después de eliminar
+                });
+            });
+
+            $("#frmUsuarios").submit(function (event) {
+                event.preventDefault();
+
+                $.post("/guardar", $(this).serialize(), function () {
+                    $("#frmUsuarios").get(0).reset();
+                    buscar(); // Actualiza la tabla después de guardar
+                });
+            }).on("reset", function () {
+                $("#id").val("");
+            });
+
+            Pusher.logToConsole = true;
+
+            var pusher = new Pusher('87d2c26ba36c6da2dc5f', {
+                cluster: 'us2'
+            });
+
             var channel = pusher.subscribe("canalRegistrosusuarioss");
 
-            // Evento --> El código que se accionará con la información enviada o el uso del canal
-            channel.bind("registrousuarioss", function (usuarioss) {
-                // 1. Notificar el evento
-                // alert("Evento exitoso")
-
-                // 2. Recibir información enviada en el evento
-                // console.log(usuarioss)
-
-                // 3. Trabajar información enviada por el evento
-                /**
-                $("#tbodyUsuarios").prepend(`<tr>
-                    <td>${usuarioss.nombre}</td>
-                    <td>${usuarioss.contrasena}</td>
-                    <td></td>
-                </tr>`)
-                */
-
-                // 4. Mandar a llamar otro código luego del evento
-                buscar()
-            })
-        })
-    </script>    
+            channel.bind("registrousuarioss", function () {
+                buscar();
+            });
+        });
+    </script>
 </body>
 </html>
