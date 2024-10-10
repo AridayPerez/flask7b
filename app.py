@@ -34,7 +34,7 @@ def notificarActualizacion():
     )
 
     args = {}  # Puedes definir los datos que deseas enviar
-    pusher_client.trigger("canalRegistros", "registro", args)
+    pusher_client.trigger("canalRegistrosusuarioss", "registrousuarioss", args)
 
 @app.route("/buscar")
 def buscar():
