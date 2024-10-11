@@ -27,6 +27,8 @@
             <button type="reset" class="btn">Cancelar</button>
         </form>
 
+        <br>
+        <div class="table-container" style="border: 2px solid #000; padding: 10px; border-radius: 10px;">
         <h1>Listado</h1>
         <table class="table mt-4">
             <thead>
@@ -39,6 +41,7 @@
             </thead>
             <tbody id="tbodyUsuarios"></tbody>
         </table>
+        </div>
     </div>
 
     <script>
@@ -52,7 +55,7 @@
                             <td>${usuario.Nombre_Usuario}</td>
                             <td>${usuario.Contrasena}</td>
                             <td>
-                                <button class="btn btn-secondary btn-editar" data-id="${usuario.Id_Usuario}">Editar</button>
+                                <button class="btn btn-success btn-editar" data-id="${usuario.Id_Usuario}">Editar</button>
                                 <button class="btn btn-danger btn-eliminar" data-id="${usuario.Id_Usuario}">Eliminar</button>
                             </td>
                         </tr>
