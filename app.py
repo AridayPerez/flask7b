@@ -1,8 +1,3 @@
-
-Treviño Hernández Emanuel
-7:16 p.m. (hace 0 minutos)
-para mí
-
 from flask import Flask, render_template, request, jsonify, make_response
 import mysql.connector
 import pusher
