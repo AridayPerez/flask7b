@@ -10,9 +10,9 @@
 </head>
 <body>
     <div class="container">
+        <br>
         <h1>Usuarios</h1>
 
-        <!-- Formulario para crear o actualizar usuarios -->
         <form id="frmUsuario" method="post">
             <input type="hidden" id="id_usuario" name="id_usuario">
             <div class="mb-3">
@@ -24,15 +24,16 @@
                 <input type="password" id="contrasena" name="contrasena" class="form-control">
             </div>
             <button id="guardar" class="btn btn-primary">Guardar</button>
-            <button type="reset" class="btn btn-link">Cancelar</button>
+            <button type="reset" class="btn">Cancelar</button>
         </form>
 
-        <!-- Tabla para mostrar los usuarios -->
-        <table class="table table-striped mt-4">
+        <h1>Listado</h1>
+        <table class="table mt-4">
             <thead>
                 <tr>
                     <th>Id:</th>
                     <th>Nombre de Usuario:</th>
+                    <th>Contraseña:</th>
                     <th>Acciones:</th>
                 </tr>
             </thead>
@@ -41,7 +42,6 @@
     </div>
 
     <script>
-        // Cargar usuarios al cargar la página
         function cargarUsuarios() {
             $.get("/usuarios", function (usuarios) {
                 $("#tbodyUsuarios").html("");
@@ -50,8 +50,9 @@
                         <tr>
                             <td>${usuario.Id_Usuario}</td>
                             <td>${usuario.Nombre_Usuario}</td>
+                            <td>${usuario.Contrasena}</td>
                             <td>
-                                <button class="btn btn-primary btn-editar" data-id="${usuario.Id_Usuario}">Editar</button>
+                                <button class="btn btn-secondary btn-editar" data-id="${usuario.Id_Usuario}">Editar</button>
                                 <button class="btn btn-danger btn-eliminar" data-id="${usuario.Id_Usuario}">Eliminar</button>
                             </td>
                         </tr>
@@ -60,7 +61,6 @@
             });
         }
 
-        // Editar usuario usando ruta sin query string
         $(document).on("click", ".btn-editar", function () {
             const id_usuario = $(this).data("id");
             $.get(`/usuarios/editar/${id_usuario}`, function (usuario) {
@@ -70,7 +70,6 @@
             });
         });
 
-        // Eliminar usuario usando ID en la URL
         $(document).on("click", ".btn-eliminar", function () {
             if (!confirm("¿Deseas eliminar este usuario?")) return;
             const id_usuario = $(this).data("id");
@@ -79,7 +78,6 @@
             });
         });
 
-        // Guardar o actualizar usuario
         $("#frmUsuario").submit(function (event) {
             event.preventDefault();
             const url = $("#id_usuario").val() ? "/usuarios/guardar" : "/usuarios/guardar";
@@ -89,11 +87,9 @@
             });
         });
 
-        // Cargar usuarios al inicio
         $(document).ready(function () {
             cargarUsuarios();
 
-            // Pusher para actualizaciones en tiempo real
             const pusher = new Pusher("87d2c26ba36c6da2dc5f", { cluster: "us2" });
             const channel = pusher.subscribe("canalUsuarios");
             channel.bind("actualizacion", function () {
@@ -103,4 +99,3 @@
     </script>
 </body>
 </html>
-
