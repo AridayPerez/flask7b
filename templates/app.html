@@ -3,175 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
+    <title>Usuarios Ariday</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-
-    <title>App</title>
 </head>
 <body>
     <div class="container">
-      <form id="frmUsuarios" method="post">
-          <input type="hidden" id="id" name="id">
+        <h1>Usuarios</h1>
 
-          <div class="mb-1">
-              <label for="nombre">Nombre</label>
-              <input type="text" id="nombre" name="nombre" class="form-control" required>
-          </div>
-           <div class="mb-1">
-              <label for="contrasena">Contraseña</label>
-              <input type="password" id="contrasena" name="contrasena" class="form-control" required>
-          </div>
-          <div class="mb-1">
-              <button id="guardar" name="guardar" class="btn btn-dark">Guardar</button>
-              <button type="reset" id="cancelar" name="cancelar" class="btn btn-link">Cancelar</button>
-          </div>
-      </form>
-      <table class="table table-sm">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Contraseña</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tbodyUsuarios"></tbody>
-      </table>
+        <!-- Formulario para crear o actualizar usuarios -->
+        <form id="frmUsuario" method="post">
+            <input type="hidden" id="id_usuario" name="id_usuario">
+            <div class="mb-3">
+                <label for="nombre_usuario" class="form-label">Nombre de Usuario</label>
+                <input type="text" id="nombre_usuario" name="nombre_usuario" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="contrasena" class="form-label">Contraseña</label>
+                <input type="password" id="contrasena" name="contrasena" class="form-control">
+            </div>
+            <button id="guardar" class="btn btn-primary">Guardar</button>
+            <button type="reset" class="btn btn-link">Cancelar</button>
+        </form>
+
+        <!-- Tabla para mostrar los usuarios -->
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Id:</th>
+                    <th>Nombre de Usuario:</th>
+                    <th>Acciones:</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyUsuarios"></tbody>
+        </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <div class="app-float-button bg-body" style="z-index: 3; position: fixed; bottom: 5px; left: 5px; cursor: pointer;">
-        <ul class="list-group list-group-horizontal">
-            <li class="list-group-item" data-bs-theme-value="light">
-                <i class="bi bi-sun-fill"></i>
-            </li>
-            <li class="list-group-item" data-bs-theme-value="dark">
-                <i class="bi bi-moon-stars-fill"></i>
-            </li>
-            <li class="list-group-item" data-bs-theme-value="auto">
-                <i class="bi bi-circle-half"></i>
-            </li>
-        </ul>
-    </div>
     <script>
-        var bootstrapTheme = localStorage.getItem("theme");
-
-        function getPreferredTheme() {
-            if (bootstrapTheme) {
-                return bootstrapTheme;
-            }
-
-            return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        }
-
-        function setTheme(theme) {
-            if (theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-                document.documentElement.setAttribute("data-bs-theme", "dark");
-            }
-            else {
-                document.documentElement.setAttribute("data-bs-theme", ((theme === "auto") ? "light" : theme));
-            }
-        }
-
-        function showActiveTheme(theme) {
-            $("[data-bs-theme-value]").removeClass("bg-primary text-white active");
-            $(`[data-bs-theme-value="${theme}"]`).addClass("bg-primary text-white active");
-        }
-
-        $(document).on("click", '[data-bs-theme-value]', function () {
-            const theme = this.getAttribute("data-bs-theme-value");
-            localStorage.setItem("theme", theme);
-            setTheme(theme);
-            showActiveTheme(theme);
-        });
-
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-            if (!["light", "dark"].includes(bootstrapTheme)) {
-                setTheme(getPreferredTheme());
-            }
-        });
-
-        document.addEventListener("DOMContentLoaded", function () {
-            setTheme(bootstrapTheme);
-            showActiveTheme(getPreferredTheme());
-        });
-    </script>
-
-    <script>
-        window.addEventListener("load", function () {
-            function buscar() {
-                $.get("/buscar", function (respuesta) {
-                    $("#tbodyUsuarios").html("");
-
-                    for (var x in respuesta) {
-                        var usuarioss = respuesta[x];
-
-                        $("#tbodyUsuarios").append(`<tr>
-                            <td>${usuarioss["Nombre_Usuario"]}</td>
-                            <td>${usuarioss["Contrasena"]}</td>
+        // Cargar usuarios al cargar la página
+        function cargarUsuarios() {
+            $.get("/usuarios", function (usuarios) {
+                $("#tbodyUsuarios").html("");
+                usuarios.forEach(function (usuario) {
+                    $("#tbodyUsuarios").append(`
+                        <tr>
+                            <td>${usuario.Id_Usuario}</td>
+                            <td>${usuario.Nombre_Usuario}</td>
                             <td>
-                                <button class="btn btn-primary btn-editar" data-id="${usuarioss["Id_Usuario"]}">Editar</button>
-                                <button class="btn btn-danger btn-eliminar" data-id="${usuarioss["Id_Usuario"]}">Eliminar</button>
+                                <button class="btn btn-primary btn-editar" data-id="${usuario.Id_Usuario}">Editar</button>
+                                <button class="btn btn-danger btn-eliminar" data-id="${usuario.Id_Usuario}">Eliminar</button>
                             </td>
-                        </tr>`);
-                    }
-                });
-            }
-
-            buscar();
-
-            $(document).on("click", ".btn-editar", function () {
-                var id = $(this).attr("data-id");
-
-                $.get("/editar", { id: id }, function (respuesta) {
-                    var usuarioss = respuesta[0];
-
-                    $("#id").val(usuarioss["Id_Usuario"]).trigger("focus");
-                    $("#nombre").val(usuarioss["Nombre_Usuario"]);
-                    $("#contrasena").val(usuarioss["Contrasena"]);
+                        </tr>
+                    `);
                 });
             });
+        }
 
-            $(document).on("click", ".btn-eliminar", function () {
-                if (!confirm("¿Seguro que deseas eliminar este registro?")) {
-                    return;
-                }
-
-                var id = $(this).attr("data-id");
-
-                $.post("/eliminar", { id: id }, function () {
-                    buscar(); // Actualiza la tabla después de eliminar
-                });
+        // Editar usuario usando ruta sin query string
+        $(document).on("click", ".btn-editar", function () {
+            const id_usuario = $(this).data("id");
+            $.get(`/usuarios/editar/${id_usuario}`, function (usuario) {
+                $("#id_usuario").val(usuario.Id_Usuario);
+                $("#nombre_usuario").val(usuario.Nombre_Usuario);
+                $("#contrasena").val(usuario.Contrasena);
             });
+        });
 
-            $("#frmUsuarios").submit(function (event) {
-                event.preventDefault();
-
-                $.post("/guardar", $(this).serialize(), function () {
-                    $("#frmUsuarios").get(0).reset();
-                    buscar(); // Actualiza la tabla después de guardar
-                });
-            }).on("reset", function () {
-                $("#id").val("");
+        // Eliminar usuario usando ID en la URL
+        $(document).on("click", ".btn-eliminar", function () {
+            if (!confirm("¿Deseas eliminar este usuario?")) return;
+            const id_usuario = $(this).data("id");
+            $.post(`/usuarios/eliminar/${id_usuario}`, function () {
+                cargarUsuarios();
             });
+        });
 
-            Pusher.logToConsole = true;
-
-            var pusher = new Pusher('87d2c26ba36c6da2dc5f', {
-                cluster: 'us2'
+        // Guardar o actualizar usuario
+        $("#frmUsuario").submit(function (event) {
+            event.preventDefault();
+            const url = $("#id_usuario").val() ? "/usuarios/guardar" : "/usuarios/guardar";
+            $.post(url, $(this).serialize(), function () {
+                $("#frmUsuario").get(0).reset();
+                cargarUsuarios();
             });
+        });
 
-            var channel = pusher.subscribe("canalRegistrosusuarioss");
+        // Cargar usuarios al inicio
+        $(document).ready(function () {
+            cargarUsuarios();
 
-            channel.bind("registrousuarioss", function () {
-                buscar();
+            // Pusher para actualizaciones en tiempo real
+            const pusher = new Pusher("87d2c26ba36c6da2dc5f", { cluster: "us2" });
+            const channel = pusher.subscribe("canalUsuarios");
+            channel.bind("actualizacion", function () {
+                cargarUsuarios();
             });
         });
     </script>
 </body>
 </html>
+
