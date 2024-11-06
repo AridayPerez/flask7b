@@ -3,6 +3,8 @@ import mysql.connector
 import pusher
 import logging
 
+from flask_cors import CORS, cross_origin
+
 # Configura el logger de Flask
 logging.basicConfig(level=logging.INFO)
 
@@ -15,6 +17,7 @@ con = mysql.connector.connect(
 )
 
 app = Flask(__name__)
+CORS(app)
 
 # Página principal que carga el CRUD de usuarios
 @app.route("/")
